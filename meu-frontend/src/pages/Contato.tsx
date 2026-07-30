@@ -6,13 +6,17 @@ interface Contato {
   email: string;
 }
 
-function Contato() {
-  const [contatos, setContatos] = useState<Contato[]>([]);
-  const [carregando, setCarregando] = useState(true);
-  const [erro, setErro] = useState("");
+const API_URL = "http://localhost:3000/api/contatos";
 
-  useEffect(() => {
-    async function buscarContatos() {
+// Função para buscar contatos da API
+export default function Contatos() {
+  const [contatos, setContatos] = useState<Contato[]>([]); // Estado para armazenar a lista de contatos
+  const [carregando, setCarregando] = useState(true); // Estado para controlar o carregamento dos contatos
+  const [erro, setErro] = useState(""); // Estado para armazenar mensagens de erro
+  const [form, setForm] = useState({ id: 0, name: "", email: "" }); // Estado para armazenar os dados do formulário
+const [editando, setEditando] = useState(false); // Estado para controlar se estamos editando um contato
+
+async function buscarContatos() {
       try {
         const resposta = await fetch("http://localhost:3000/api/contatos");
 
@@ -28,6 +32,12 @@ function Contato() {
         setCarregando(false);
       }
     }
+}
+
+useEffect(() => {
+  async function buscarContatos() { 
+    
+  }
 
     buscarContatos();
   }, []);
