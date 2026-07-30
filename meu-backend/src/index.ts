@@ -1,9 +1,17 @@
 import express, { type Express, type Request, type Response } from 'express';
+import morgan from 'morgan';
+import helmet from 'helmet';
 import cors from 'cors';
+import dotenv from 'dotenv';
+
+dotenv.config(); // Carrega as variáveis de ambiente do arquivo .env
 
 const app: Express = express();
+app.use(morgan('dev')); // Log de requisições HTTP
+app.use(helmet()); // Adiciona cabeçalhos de segurança
+
 app.use(cors()); // Habilita o CORS para todas as rotas
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // Dados em memória para simular um banco de dados
 const contatos = [
