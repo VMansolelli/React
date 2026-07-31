@@ -8,17 +8,20 @@ interface Contato {
 
 const API_URL = "http://localhost:3000/api/contatos";
 
-// Função para buscar contatos da API
 export default function Contato() {
-  const [contatos, setContatos] = useState<Contato[]>([]); // Estado para armazenar a lista de contatos
-  const [carregando, setCarregando] = useState(true); // Estado para controlar o carregamento dos contatos
-  const [erro, setErro] = useState(""); // Estado para armazenar mensagens de erro
-  const [form, setForm] = useState({ id: 0, name: "", email: "" }); // Estado para armazenar os dados do formulário
-  const [editando, setEditando] = useState(false); // Estado para controlar se estamos editando um contato
+  const [contatos, setContatos] = useState<Contato[]>([]);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState("");
+  const [editando, setEditando] = useState(false);
+  const [form, setForm] = useState({
+    id: 0,
+    name: "",
+    email: "",
+  });
 
   async function buscarContatos() {
     try {
-      const resposta = await fetch("http://localhost:3000/api/contatos");
+      const resposta = await fetch(API_URL);
 
       if (!resposta.ok) {
         throw new Error("Erro ao buscar contatos.");
@@ -33,63 +36,36 @@ export default function Contato() {
     }
   }
 
-  async function cadastrarContato() {
-    const resposta = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(form),
-    });
-
-    if (!resposta.ok) {
-      throw new Error("Erro ao cadastrar contato.");
-    }
-    buscarContatos();
-    setForm({ id: 0, name: "", email: "" }); // Limpa o formulário após o cadastro
-  }
-
-  async function atualizarContato() {
-    const resposta = await fetch(`${API_URL}/${form.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(form),
-    });
-
-    if (!resposta.ok) {
-      throw new Error("Erro ao atualizar contato.");
-    }
-    buscarContatos();
-    setForm({ id: 0, name: "", email: "" }); // Limpa o formulário após o cadastro
-  }
-
-  async function deletarContato(id: number) {
-    const resposta = await fetch(`${API_URL}/${id}`, {
-      method: "DELETE",
-    });
-
-    if (!resposta.ok) {
-      throw new Error("Erro ao deletar contato.");
-    }
-    buscarContatos();
-  }
-
-  function editarContato(contato: Contato) {
-    setForm(contato);
-    setEditando(true);
-  }
-
-  function cancelarEdicao() {
-    setForm({ id: 0, name: "", email: "" });
-    setEditando(false);
-  }
-
   useEffect(() => {
-    async function buscarContatos() {}
+    let ativo = true;
 
-    buscarContatos();
+    const carregar = async () => {
+      try {
+        setCarregando(true);
+        const resposta = await fetch(API_URL);
+        if (!resposta.ok) {
+          throw new Error("Erro ao buscar contatos");
+        }
+        const dados = await resposta.json();
+        if (ativo) {
+          setContatos(dados);
+          setErro("");
+        }
+      } catch (err) {
+        if (ativo) {
+          setErro((err as Error).message);
+        }
+      } finally {
+        if (ativo) {
+          setCarregando(false);
+        }
+      }
+    };
+    void carregar();
+
+    return () => {
+      ativo = false;
+    };
   }, []);
 
   if (carregando) {
