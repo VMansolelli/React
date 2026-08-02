@@ -36,6 +36,58 @@ export default function Contato() {
     }
   }
 
+  async function cadastrarContato() {
+    const resposta = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(form),
+    });
+    if (!resposta.ok) {
+      throw new Error("Erro ao cadastrar contato.");
+    }
+    await buscarContatos();
+    cancelarEdicao();
+  }
+
+  async function atualizarContato() {
+    const resposta = await fetch(`${API_URL}/${form.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(form),
+    });
+    if (!resposta.ok) {
+      throw new Error("Erro ao atualizar contato.");
+    }
+    await buscarContatos();
+    cancelarEdicao();
+  }
+
+  async function deletarContato(id: number) {
+    const resposta = await fetch(`${API_URL}/${id}`, {
+      method: "DELETE",
+    });
+    if (!resposta.ok) {
+      throw new Error("Erro ao deletar contato.");
+    }
+    await buscarContatos();
+  }
+
+  function editarContato(contato: Contato) {
+    setForm(contato);
+    setEditando(true);
+  }
+
+  function cancelarEdicao() {
+    setForm({ id: 0, name: "", email: "" });
+    setEditando(false);
+  }
+
+
+
   useEffect(() => {
     let ativo = true;
 
@@ -87,6 +139,8 @@ export default function Contato() {
   return (
     <div className="mx-auto max-w-2xl p-6">
       <h1 className="mb-6 text-center text-3xl font-bold">Lista de Contatos</h1>
+
+      
 
       {contatos.length === 0 ? (
         <p className="text-center text-gray-500">Nenhum contato encontrado.</p>
