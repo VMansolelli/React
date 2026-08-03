@@ -13,6 +13,7 @@ export default function Contato() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
   const [editando, setEditando] = useState(false);
+
   const [form, setForm] = useState({
     id: 0,
     name: "",
@@ -48,7 +49,8 @@ export default function Contato() {
       throw new Error("Erro ao cadastrar contato.");
     }
     await buscarContatos();
-    cancelarEdicao();
+    setForm({ id: 0, name: "", email: "" });
+    setEditando(false);
   }
 
   async function atualizarContato() {
@@ -63,7 +65,8 @@ export default function Contato() {
       throw new Error("Erro ao atualizar contato.");
     }
     await buscarContatos();
-    cancelarEdicao();
+    setForm({ id: 0, name: "", email: "" });
+    setEditando(false);
   }
 
   async function deletarContato(id: number) {
@@ -85,8 +88,6 @@ export default function Contato() {
     setForm({ id: 0, name: "", email: "" });
     setEditando(false);
   }
-
-
 
   useEffect(() => {
     let ativo = true;
@@ -139,8 +140,6 @@ export default function Contato() {
   return (
     <div className="mx-auto max-w-2xl p-6">
       <h1 className="mb-6 text-center text-3xl font-bold">Lista de Contatos</h1>
-
-      
 
       {contatos.length === 0 ? (
         <p className="text-center text-gray-500">Nenhum contato encontrado.</p>
