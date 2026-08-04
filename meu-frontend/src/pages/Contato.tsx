@@ -6,124 +6,35 @@ interface Contato {
   email: string;
 }
 
-const API_URL = "http://localhost:3000/api/contatos";
-
-export default function Contato() {
+function Contato() {
   const [contatos, setContatos] = useState<Contato[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
-  const [editando, setEditando] = useState(false);
-
-  const [form, setForm] = useState({
-    id: 0,
-    name: "",
-    email: "",
-  });
-
-  async function buscarContatos() {
-    try {
-      const resposta = await fetch(API_URL);
-
-      if (!resposta.ok) {
-        throw new Error("Erro ao buscar contatos.");
-      }
-
-      const dados = await resposta.json();
-      setContatos(dados);
-    } catch (err) {
-      setErro((err as Error).message);
-    } finally {
-      setCarregando(false);
-    }
-  }
-
-  async function cadastrarContato() {
-    const resposta = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(form),
-    });
-    if (!resposta.ok) {
-      throw new Error("Erro ao cadastrar contato.");
-    }
-    await buscarContatos();
-    setForm({ id: 0, name: "", email: "" });
-    setEditando(false);
-  }
-
-  async function atualizarContato() {
-    const resposta = await fetch(`${API_URL}/${form.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(form),
-    });
-    if (!resposta.ok) {
-      throw new Error("Erro ao atualizar contato.");
-    }
-    await buscarContatos();
-    setForm({ id: 0, name: "", email: "" });
-    setEditando(false);
-  }
-
-  async function deletarContato(id: number) {
-    const resposta = await fetch(`${API_URL}/${id}`, {
-      method: "DELETE",
-    });
-    if (!resposta.ok) {
-      throw new Error("Erro ao deletar contato.");
-    }
-    await buscarContatos();
-  }
-
-  function editarContato(contato: Contato) {
-    setForm(contato);
-    setEditando(true);
-  }
-
-  function cancelarEdicao() {
-    setForm({ id: 0, name: "", email: "" });
-    setEditando(false);
-  }
 
   useEffect(() => {
-    let ativo = true;
-
-    const carregar = async () => {
+    async function buscarContatos() {
       try {
-        setCarregando(true);
-        const resposta = await fetch(API_URL);
-        if (!resposta.ok) {
-          throw new Error("Erro ao buscar contatos");
-        }
-        const dados = await resposta.json();
-        if (ativo) {
-          setContatos(dados);
-          setErro("");
-        }
-      } catch (err) {
-        if (ativo) {
-          setErro((err as Error).message);
-        }
-      } finally {
-        if (ativo) {
-          setCarregando(false);
-        }
-      }
-    };
-    void carregar();
+        const resposta = await fetch("http://localhost:3000/api/contatos");
 
-    return () => {
-      ativo = false;
-    };
+        if (!resposta.ok) {
+          throw new Error("Erro ao buscar contatos.");
+        }
+
+        const dados = await resposta.json();
+        setContatos(dados);
+      } catch (err) {
+        setErro((err as Error).message);
+      } finally {
+        setCarregando(false);
+      }
+    }
+
+    buscarContatos();
   }, []);
 
   if (carregando) {
     return (
-      <div className="mt-10 flex justify-center">
+      <div className="flex justify-center mt-10">
         <p className="text-gray-600">Carregando contatos...</p>
       </div>
     );
@@ -131,24 +42,28 @@ export default function Contato() {
 
   if (erro) {
     return (
-      <div className="mx-auto mt-10 max-w-md rounded-lg bg-red-100 p-4 text-red-700">
+      <div className="max-w-md mx-auto mt-10 bg-red-100 text-red-700 p-4 rounded-lg">
         {erro}
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-2xl p-6">
-      <h1 className="mb-6 text-center text-3xl font-bold">Lista de Contatos</h1>
+    <div className="max-w-2xl mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6 text-center">
+        Lista de Contatos
+      </h1>
 
       {contatos.length === 0 ? (
-        <p className="text-center text-gray-500">Nenhum contato encontrado.</p>
+        <p className="text-center text-gray-500">
+          Nenhum contato encontrado.
+        </p>
       ) : (
         <ul className="space-y-4">
           {contatos.map((contato) => (
             <li
               key={contato.id}
-              className="rounded-lg border p-4 shadow-sm transition hover:shadow-md"
+              className="border rounded-lg p-4 shadow-sm hover:shadow-md transition"
             >
               <h2 className="text-lg font-semibold">{contato.name}</h2>
               <p className="text-gray-600">{contato.email}</p>
@@ -159,3 +74,5 @@ export default function Contato() {
     </div>
   );
 }
+
+export default Contato;
