@@ -98,3 +98,8 @@ app.delete("/api/contatos/:id", async (req: Request, res: Response) => {
     return res.status(500).json({ error: "Erro interno do servidor" });
   }
 });
+
+// Inicia o servidor
+app.listen(port, () => {
+  console.log(`Servidor rodando em http://localhost:${port}`);
+});
