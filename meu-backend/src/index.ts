@@ -3,7 +3,7 @@ import morgan from "morgan";
 import helmet from "helmet";
 import cors from "cors";
 import dotenv from "dotenv";
-import { prisma } from "./prisma";
+import { prisma } from "./prisma.js";
 
 dotenv.config(); // Carrega as variáveis de ambiente do arquivo .env
 
@@ -11,14 +11,25 @@ const app: Express = express();
 app.use(morgan("dev")); // Log de requisições HTTP
 app.use(helmet()); // Adiciona cabeçalhos de segurança
 
-app.use(cors()); // Habilita o CORS para todas as rotas
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  })
+); // Habilita o CORS para todas as rotas
 app.use(express.json());
 
-const port = process.env.PORT || 3000;
+const port = Number(process.env.PORT) || 3000;
 
 // Rota raiz para verificar se o servidor está funcionando
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello World!");
+});
+
+app.get("/health", (req: Request, res: Response) => {
+  res.status(200).json({
+    status: "ok",
+    message: "API em funcionamento",
+  });
 });
 
 // Rota GET para retornar a lista de contatos
@@ -79,7 +90,7 @@ app.put("/api/contatos/:id", async (req: Request, res: Response) => {
 //rota DELETE para remover um contato existente
 app.delete("/api/contatos/:id", async (req: Request, res: Response) => {
   const id = Number(req.params.id);
-  
+
   try {
     const contato = await prisma.contato.findUnique({
       where: { id },
@@ -100,6 +111,6 @@ app.delete("/api/contatos/:id", async (req: Request, res: Response) => {
 });
 
 // Inicia o servidor
-app.listen(port, () => {
-  console.log(`Servidor rodando em http://localhost:${port}`);
+app.listen(port, "0.0.0.0", () => {
+  console.log(`Servidor rodando na porta ${port}`);
 });
