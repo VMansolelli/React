@@ -6,7 +6,7 @@ interface Contato {
   email: string;
 }
 
-const API_URL = "http://localhost:3000/api/contatos";
+const API_URL = import.meta.env.VITE_API_URL;
 
 export default function Contatos() {
   const [contatos, setContatos] = useState<Contato[]>([]);
